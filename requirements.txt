@@ -1,0 +1,7 @@
+anthropic>=1.11
+streamlit>=1.40
+pydantic>=2.7
+python-dotenv>=1.0
+python-docx>=1.1
+pytest>=8.0
+# Optional, for voice input (local speech-to-text, no API key): pip install -r requirements-voice.txt

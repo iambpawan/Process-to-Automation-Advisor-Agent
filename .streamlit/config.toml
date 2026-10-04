@@ -1,0 +1,42 @@
+# Hides the Deploy button and the developer toolbar menu so the app reads as a product.
+[client]
+toolbarMode = "minimal"
+
+# Shared shape and type tokens: calm sans type, generous corners, visible card/sidebar edges.
+# Colours live in [theme.light] / [theme.dark] so the app looks right in either Streamlit theme.
+[theme]
+font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+baseRadius = "0.75rem"
+buttonRadius = "0.75rem"
+showWidgetBorder = true
+showSidebarBorder = true
+
+# Light palette: off-white page, warm cards, muted clay accent, near-black text.
+[theme.light]
+primaryColor = "#C2653F"
+backgroundColor = "#FAF8F5"
+secondaryBackgroundColor = "#F1ECE5"
+textColor = "#1F1D1B"
+borderColor = "#E2DAD0"
+linkColor = "#A9502E"
+
+# The sidebar sits one shade warmer than the page so the guidance panel reads as its own surface.
+[theme.light.sidebar]
+backgroundColor = "#F4EFE8"
+secondaryBackgroundColor = "#EAE2D8"
+borderColor = "#E2DAD0"
+
+# Dark palette: same warmth, lifted accent and text so contrast stays readable.
+[theme.dark]
+primaryColor = "#D98059"
+backgroundColor = "#1B1917"
+secondaryBackgroundColor = "#262220"
+textColor = "#F2EEE9"
+borderColor = "#3A342F"
+linkColor = "#E79A77"
+
+[theme.dark.sidebar]
+backgroundColor = "#211E1B"
+secondaryBackgroundColor = "#2C2724"
+borderColor = "#3A342F"

@@ -1,0 +1,27 @@
+{
+  "name": "Health insurance claims intake",
+  "description": "Claims arrive by email with scanned claim forms; staff extract the data, check member eligibility, key the claim into the legacy claims system, route high-value claims for approval and acknowledge receipt.",
+  "department": "Claims Operations",
+  "industry": "Healthcare insurance",
+  "transactions_per_month": 4000,
+  "frequency": "Daily, peaks in the last week of each month",
+  "hourly_labor_cost": 90,
+  "currency": "AED",
+  "process_stability": "changes_quarterly",
+  "error_rate_pct": 6,
+  "steps": [
+    {"name": "Triage claim email", "description": "Read the email, identify claim type and attachments", "minutes_per_run": 3, "system": "Outlook", "input_type": "email", "requires_judgment": false, "needs_language_understanding": true, "rules_documented": false, "exception_rate_pct": 5, "is_approval": false},
+    {"name": "Extract claim form data", "description": "Key member ID, provider, codes and amounts from the scanned form", "minutes_per_run": 6, "system": "SharePoint", "input_type": "scanned_document", "requires_judgment": false, "needs_language_understanding": false, "rules_documented": true, "exception_rate_pct": 10, "is_approval": false},
+    {"name": "Check member eligibility", "description": "Look up the member and policy cover", "minutes_per_run": 4, "system": "Legacy Claims System", "input_type": "structured", "requires_judgment": false, "needs_language_understanding": false, "rules_documented": true, "exception_rate_pct": 8, "is_approval": false},
+    {"name": "Register claim", "description": "Create the claim record", "minutes_per_run": 5, "system": "Legacy Claims System", "input_type": "structured", "requires_judgment": false, "needs_language_understanding": false, "rules_documented": true, "exception_rate_pct": 4, "is_approval": false},
+    {"name": "Approve high-value claims", "description": "Supervisor approves claims above the threshold", "minutes_per_run": 2, "system": "Microsoft Teams", "input_type": "structured", "requires_judgment": true, "needs_language_understanding": false, "rules_documented": true, "exception_rate_pct": 0, "is_approval": true},
+    {"name": "Send acknowledgement", "description": "Email the member a claim reference", "minutes_per_run": 1, "system": "Outlook", "input_type": "structured", "requires_judgment": false, "needs_language_understanding": false, "rules_documented": true, "exception_rate_pct": 2, "is_approval": false}
+  ],
+  "systems": [
+    {"name": "Outlook", "has_api_or_connector": true, "ui_change_frequency": "rare", "is_legacy_desktop": false},
+    {"name": "SharePoint", "has_api_or_connector": true, "ui_change_frequency": "rare", "is_legacy_desktop": false},
+    {"name": "Legacy Claims System", "has_api_or_connector": false, "ui_change_frequency": "occasional", "is_legacy_desktop": true},
+    {"name": "Microsoft Teams", "has_api_or_connector": true, "ui_change_frequency": "rare", "is_legacy_desktop": false}
+  ],
+  "data": {"contains_phi": true, "contains_pii": true, "uae_data_residency_required": true, "classification": "restricted"}
+}

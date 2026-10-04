@@ -1,0 +1,52 @@
+{
+  "_note": "Planning assumptions only. Verify every price against current Microsoft and Anthropic price lists (and your agreements) before quoting.",
+  "currency": "USD",
+  "fx_to_usd": {"USD": 1.0, "AED": 0.2723, "EUR": 1.08, "GBP": 1.27, "SAR": 0.2667, "INR": 0.012,
+    "QAR": 0.2747, "KWD": 3.25, "BHD": 2.65, "OMR": 2.60, "JOD": 1.41, "EGP": 0.02, "CAD": 0.73,
+    "AUD": 0.65, "CHF": 1.12, "SGD": 0.74, "JPY": 0.0067, "CNY": 0.14, "ZAR": 0.055, "PKR": 0.0036, "NZD": 0.60},
+  "horizon_years": 3,
+  "labor": {
+    "build_day_rate": 600,
+    "ai_review_minutes_per_transaction": 1.0,
+    "support_pct_of_build_per_year": 0.2
+  },
+  "power_automate": {
+    "premium_per_user_month": 15,
+    "flow_owner_licenses": 1,
+    "process_license_per_bot_month": 150,
+    "bot_capacity_minutes_per_month": 25920,
+    "bot_runtime_ratio": 0.25
+  },
+  "ai": {
+    "engine": "llm_tokens",
+    "runtime_model": "claude-opus-5-5",
+    "models_per_mtok": {
+      "claude-opus-5-5": {"input": 4.0, "output": 20.0},
+      "claude-sonnet-5-5": {"input": 2.0, "output": 10.0},
+      "claude-haiku-4-5": {"input": 1.0, "output": 5.0}
+    },
+    "tokens_per_step_by_input_type": {
+      "structured": {"input": 800, "output": 200},
+      "semi_structured": {"input": 1200, "output": 300},
+      "unstructured": {"input": 2000, "output": 400},
+      "email": {"input": 1500, "output": 300},
+      "scanned_document": {"input": 3000, "output": 500},
+      "voice": {"input": 2500, "output": 400}
+    },
+    "ai_builder": {
+      "credits_per_ai_step": 100,
+      "price_per_credit": 0.0005
+    }
+  },
+  "effort_days": {
+    "base": 3,
+    "per_step": 1.0,
+    "per_api_system": 1.5,
+    "per_ui_system": 3.0,
+    "per_ai_step": 4.0,
+    "per_hitl_step": 1.0,
+    "compliance": 3.0,
+    "small_max": 10,
+    "medium_max": 30
+  }
+}

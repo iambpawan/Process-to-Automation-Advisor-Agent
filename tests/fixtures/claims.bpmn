@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_Claims" name="Claims definitions"
+                  targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0">
+  <bpmn:collaboration id="Collab_Claims">
+    <bpmn:participant id="Part_Customer" name="Member" />
+    <bpmn:participant id="Part_Claims" name="Health insurance claims intake" processRef="Process_Claims" />
+    <bpmn:messageFlow id="MF_Email" sourceRef="Part_Customer" targetRef="Start_Email" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Claims" name="Claims intake" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Clerk" name="Claims Clerk">
+        <bpmn:flowNodeRef>Start_Email</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Triage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Extract</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Valid</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Manager" name="Claims Manager">
+        <bpmn:flowNodeRef>Task_Approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_Approved</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="Legacy Claims System">
+        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Register</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Confirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Reject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Rejected</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <!-- Elements are deliberately not in flow order, as many modelers write them. -->
+    <bpmn:sendTask id="Task_Confirm" name="Send confirmation email" />
+    <bpmn:startEvent id="Start_Email" name="Claim email received">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_1" />
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_Triage" name="Triage claim email in Outlook" camunda:assignee="clerk">
+      <bpmn:documentation>Read the email, identify claim type and attachments.</bpmn:documentation>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_Extract" name="Extract data from scanned claim form" />
+    <bpmn:businessRuleTask id="Task_Validate" name="Validate policy cover" camunda:decisionRef="policy-rules" />
+    <bpmn:exclusiveGateway id="Gw_Valid" name="Policy valid?" />
+    <bpmn:userTask id="Task_Approve" name="Approve high-value claim">
+      <bpmn:documentation>Claims above AED 10,000 need manager sign-off.</bpmn:documentation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gw_Approved" name="Approved?" />
+    <bpmn:serviceTask id="Task_Register" name="Register claim in SAP" camunda:type="external" camunda:topic="register" />
+    <bpmn:userTask id="Task_Request" name="Request missing information" />
+    <bpmn:sendTask id="Task_Reject" name="Notify member of rejection" />
+    <bpmn:endEvent id="End_Done" name="Claim registered" />
+    <bpmn:endEvent id="End_Rejected" name="Claim rejected" />
+    <bpmn:manualTask id="Task_Archive" name="Archive paper originals" />
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_Email" targetRef="Task_Triage" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Triage" targetRef="Task_Extract" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Extract" targetRef="Task_Validate" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Validate" targetRef="Gw_Valid" />
+    <bpmn:sequenceFlow id="Flow_Yes" name="Yes" sourceRef="Gw_Valid" targetRef="Task_Approve" />
+    <bpmn:sequenceFlow id="Flow_No" name="No" sourceRef="Gw_Valid" targetRef="Task_Request" />
+    <bpmn:sequenceFlow id="Flow_Loop" sourceRef="Task_Request" targetRef="Task_Extract" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_Approve" targetRef="Gw_Approved" />
+    <bpmn:sequenceFlow id="Flow_Ok" name="Approved" sourceRef="Gw_Approved" targetRef="Task_Register" />
+    <bpmn:sequenceFlow id="Flow_Rej" name="Rejected" sourceRef="Gw_Approved" targetRef="Task_Reject" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_Register" targetRef="Task_Confirm" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_Confirm" targetRef="End_Done" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_Reject" targetRef="End_Rejected" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_1">
+    <bpmndi:BPMNPlane id="Plane_1" bpmnElement="Collab_Claims">
+      <bpmndi:BPMNShape id="Task_Triage_di" bpmnElement="Task_Triage">
+        <dc:Bounds x="260" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

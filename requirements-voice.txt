@@ -1,0 +1,3 @@
+# Optional voice input. Runs Whisper locally on the CPU; the first transcription downloads
+# the "base" model (about 150 MB), after which it works offline.
+faster-whisper>=1.0

@@ -1,0 +1,84 @@
+{
+  "name": "6f1c2d3e-0a1b-4c5d-9e8f-112233445566",
+  "id": "/providers/Microsoft.Flow/flows/6f1c2d3e-0a1b-4c5d-9e8f-112233445566",
+  "type": "Microsoft.Flow/flows",
+  "properties": {
+    "apiId": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+    "displayName": "Send claim acknowledgement email",
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "description": "Emails the member a claim reference when a claim is registered in the SharePoint claims list",
+      "parameters": {"$connections": {"defaultValue": {}, "type": "Object"}, "$authentication": {"defaultValue": {}, "type": "SecureObject"}},
+      "triggers": {
+        "When_an_item_is_created": {
+          "recurrence": {"frequency": "Minute", "interval": 5},
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {"apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline", "connectionName": "shared_sharepointonline", "operationId": "GetOnNewItems"},
+            "parameters": {"dataset": "https://contoso.sharepoint.com/sites/claims", "table": "a1b2c3"},
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Get_item": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {"host": {"apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline", "connectionName": "shared_sharepointonline", "operationId": "GetItem"}, "parameters": {"id": "@triggerOutputs()?['body/ID']"}}
+        },
+        "Condition_has_email": {
+          "runAfter": {"Get_item": ["Succeeded"]},
+          "type": "If",
+          "expression": {"and": [{"not": {"equals": ["@outputs('Get_item')?['body/MemberEmail']", ""]}}]},
+          "actions": {
+            "Send_an_email_(V2)": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {"host": {"apiId": "/providers/Microsoft.PowerApps/apis/shared_office365", "connectionName": "shared_office365", "operationId": "SendEmailV2"}}
+            },
+            "Update_item": {
+              "runAfter": {"Send_an_email_(V2)": ["Succeeded"]},
+              "type": "OpenApiConnection",
+              "inputs": {"host": {"apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline", "connectionName": "shared_sharepointonline", "operationId": "PatchItem"}}
+            }
+          },
+          "else": {
+            "actions": {
+              "Post_message_in_a_chat_or_channel": {
+                "runAfter": {},
+                "type": "OpenApiConnection",
+                "inputs": {"host": {"apiId": "/providers/Microsoft.PowerApps/apis/shared_teams", "connectionName": "shared_teams", "operationId": "PostMessageToConversation"}}
+              }
+            }
+          }
+        },
+        "Apply_to_each_attachment": {
+          "runAfter": {"Condition_has_email": ["Succeeded"]},
+          "type": "Foreach",
+          "foreach": "@outputs('Get_item')?['body/Attachments']",
+          "actions": {
+            "Compose_name": {"runAfter": {}, "type": "Compose", "inputs": "@items('Apply_to_each_attachment')?['Name']"}
+          }
+        },
+        "Switch_claim_type": {
+          "runAfter": {"Apply_to_each_attachment": ["Succeeded"]},
+          "type": "Switch",
+          "expression": "@outputs('Get_item')?['body/ClaimType/Value']",
+          "cases": {
+            "Case_inpatient": {"case": "Inpatient", "actions": {"Set_priority": {"runAfter": {}, "type": "SetVariable", "inputs": {"name": "priority", "value": "High"}}}}
+          },
+          "default": {"actions": {"Set_default_priority": {"runAfter": {}, "type": "SetVariable", "inputs": {"name": "priority", "value": "Normal"}}}}
+        }
+      },
+      "outputs": {}
+    },
+    "connectionReferences": {
+      "shared_sharepointonline": {"connectionName": "shared-sharepointonl-0a1b2c3d", "source": "Invoker", "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline", "tier": "NotSpecified"},
+      "shared_office365": {"connectionName": "shared-office365-4e5f6a7b", "source": "Invoker", "id": "/providers/Microsoft.PowerApps/apis/shared_office365", "tier": "NotSpecified"},
+      "shared_teams": {"connectionName": "shared-teams-8c9d0e1f", "source": "Invoker", "id": "/providers/Microsoft.PowerApps/apis/shared_teams", "tier": "NotSpecified"}
+    },
+    "flowFailureAlertSubscribed": false
+  }
+}
